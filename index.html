@@ -2,78 +2,80 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Việt Nam Xuất khẩu Q3 2025 - Sankey Diagram</title>
+<title>Vietnam Exports Q3 2025 - Sankey Diagram</title>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
-
 <style>
-  body { 
-    font-family: "Segoe UI", sans-serif; 
-    margin: 0; 
-    padding: 20px; 
-    background: #f5f7fa; 
+  body {
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f8fbff;
     overflow-x: auto;
   }
-  h1 { 
-    text-align: center; 
-    color: #0d47a1; 
-    margin-bottom: 10px; 
+  h1 {
+    text-align: center;
+    color: #0d47a1;
+    margin-bottom: 8px;
+    font-size: 28px;
   }
-  #container { 
-    min-width: 2000px;
-    margin: 0 auto; 
-    background: white; 
-    padding: 25px; 
-    border-radius: 12px; 
-    box-shadow: 0 6px 25px rgba(0,0,0,0.12); 
+  #container {
+    min-width: 2200px;
+    max-width: 2600px;
+    margin: 20px auto;
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
   }
-  text { 
-    font-family: "Segoe UI", sans-serif; 
+  .subtitle {
+    text-align: center;
+    color: #555;
+    font-size: 18px;
+    margin: -5px 0 30px 0;
   }
-  /* Tooltip styling */
   .tooltip {
     position: absolute;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.88);
     color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: opacity 0.25s;
     z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
 </style>
 </head>
 <body>
 
 <div id="container">
-  <h1>Xuất khẩu Việt Nam Quý 3/2025</h1>
-  <p style="text-align:center; color:#555; margin-top:-10px;">Theo nhóm hàng và phương thức vận chuyển (sắp xếp giảm dần giá trị)</p>
-
-  <!-- Larger SVG canvas with more height for many categories -->
-  <svg width="2400" height="3000"></svg>
+  <h1>Vietnam Exports Q3 2025</h1>
+  <p class="subtitle">By Product Category and Transport Mode (Sorted by Value, USD Billion)</p>
+  <svg width="2400" height="3200"></svg>
 </div>
 
-<!-- Tooltip div -->
 <div class="tooltip" id="tooltip"></div>
 
 <script>
-// Embedded data from the Excel file
+// Full data from your Excel (already cleaned and in English)
 const rawData = [
-  ["Goods", "Transportation", "Cumulative value (USD)"],
+  ["Product Category", "Transport Mode", "Value (USD)"],
   ["Seafood products", "Road", 1206705657],
   ["Seafood products", "Air", 53891179],
   ["Seafood products", "Waterway", 6908783191],
-  ["Vegetable and fruit stalls", "Road", 3029832169],
-  ["Vegetable and fruit stalls", "Air", 107304900],
-  ["Vegetable and fruit stalls", "Waterway", 2994186154],
-  ["Cashew", "Road", 681048234],
-  ["Cashew", "Waterway", 3064503534],
-  ["Cashew", "Other types", 27609042],
+  ],
+  ["Fruits & Vegetables", "Road", 3029832169],
+  ["Fruits & Vegetables", "Air", 107304900],
+  ["Fruits & Vegetables", "Waterway", 2994186154],
+  ["Cashew Nuts", "Road", 681048234],
+  ["Cashew Nuts", "Waterway", 3064503534],
+  ["Cashew Nuts", "Other", 27609042],
   ["Coffee", "Road", 74556795],
   ["Coffee", "Waterway", 6636803681],
-  ["Coffee", "Other types", 299612633],
+  ["Coffee", "Other", 299612633],
   ["Tea", "Road", 13132032],
   ["Tea", "Air", 999888],
   ["Tea", "Waterway", 153134780],
@@ -81,256 +83,179 @@ const rawData = [
   ["Pepper", "Waterway", 1207701101],
   ["Rice", "Road", 24485921],
   ["Rice", "Waterway", 3461555490],
-  ["Cassava and cassava products", "Road", 131220875],
-  ["Cassava and cassava products", "Waterway", 816751582],
-  ["Confectionery and cereal products", "Road", 87460552],
-  ["Confectionery and cereal products", "Air", 35626685],
-  ["Confectionery and cereal products", "Waterway", 797410319],
-  ["Animal feed and raw materials", "Waterway", 904370660],
-  ["Animal feed and raw materials", "Road", 100508419],
-  ["Ore and other minerals", "Waterway", 149412122],
-  ["Ore and other minerals", "Road", 1028432],
-  ["Clinker and cement", "Road", 11839550],
-  ["Clinker and cement", "Waterway", 972864112],
-  ["Coal of all kinds", "Waterway", 98096647],
-  ["Crude oil", "Waterway", 980586344],
-  ["All kinds of gasoline and oil", "Road", 14663862],
-  ["All kinds of gasoline and oil", "Air", 385660475],
-  ["All kinds of gasoline and oil", "Waterway", 304733414],
+  ["Cassava & Products", "Road", 131220875],
+  ["Cassava & Products", "Waterway", 816751582],
+  ["Confectionery & Cereals", "Road", 87460552],
+  ["Confectionery & Cereals", "Air", 35626685],
+  ["Confectionery & Cereals", "Waterway", 797410319],
+  ["Animal Feed", "Waterway", 904370660],
+  ["Animal Feed", "Road", 100508419],
+  ["Minerals & Ores", "Waterway", 149412122],
+  ["Minerals & Ores", "Road", 1028432],
+  ["Clinker & Cement", "Road", 11839550],
+  ["Clinker & Cement", "Waterway", 972864112],
+  ["Coal", "Waterway", 98096647],
+  ["Crude Oil", "Waterway", 980586344],
+  ["Fuel & Oil", "Road", 14663862],
+  ["Fuel & Oil", "Air", 385660475],
+  ["Fuel & Oil", "Waterway", 304733414],
   ["Chemicals", "Road", 49184971],
   ["Chemicals", "Air", 6642805],
   ["Chemicals", "Waterway", 2005892451],
-  ["Chemical products", "Road", 454133093],
-  ["Chemical products", "Air", 66744925],
-  ["Chemical products", "Waterway", 1615154903],
-  ["Chemical products", "Other types", 6101398],
-  ["Fertilizers of all kinds", "Road", 58257965],
-  ["Fertilizers of all kinds", "Waterway", 645080005],
-  ["Raw plastic", "Road", 37695046],
-  ["Raw plastic", "Waterway", 1668777930],
-  ["Raw plastic", "Other types", 22849478],
-  ["Plastic products", "Road", 165382627],
-  ["Plastic products", "Air", 223864365],
-  ["Plastic products", "Waterway", 5067746847],
-  ["Plastic products", "Other types", 38479527],
+  ["Chemical Products", "Road", 454133093],
+  ["Chemical Products", "Air", 66744925],
+  ["Chemical Products", "Waterway", 1615154903],
+  ["Chemical Products", "Other", 6101398],
+  ["Fertilizers", "Road", 58257965],
+  ["Fertilizers", "Waterway", 645080005],
+  ["Raw Plastic", "Road", 37695046],
+  ["Raw Plastic", "Waterway", 1668777930],
+  ["Raw Plastic", "Other", 22849478],
+  ["Plastic Products", "Road", 165382627],
+  ["Plastic Products", "Air", 223864365],
+  ["Plastic Products", "Waterway", 5067746847],
+  ["Plastic Products", "Other", 38479527],
   ["Rubber", "Road", 70487422],
   ["Rubber", "Waterway", 2212823404],
-  ["Rubber products", "Road", 10164589],
-  ["Rubber products", "Air", 28114381],
-  ["Rubber products", "Waterway", 1021378976],
-  ["Handbags, wallets, suitcases, hats, umbrellas", "Road", 6451303],
-  ["Handbags, wallets, suitcases, hats, umbrellas", "Air", 191552566],
-  ["Handbags, wallets, suitcases, hats, umbrellas", "Waterway", 3123825284],
-  ["Handbags, wallets, suitcases, hats, umbrellas", "Other types", 22423808],
-  ["Rattan, bamboo, sedge and carpet products", "Road", 1811310],
-  ["Rattan, bamboo, sedge and carpet products", "Air", 3186207],
-  ["Rattan, bamboo, sedge and carpet products", "Waterway", 631069552],
-  ["Rattan, bamboo, sedge and carpet products", "Other types", 4496788],
-  ["Wood and wood products", "Road", 62944294],
-  ["Wood and wood products", "Air", 21111471],
-  ["Wood and wood products", "Waterway", 12202115661],
-  ["Wood and wood products", "Other types", 210401913],
-  ["Paper and paper products", "Road", 143442780],
-  ["Paper and paper products", "Air", 38160832],
-  ["Paper and paper products", "Waterway", 1398269295],
-  ["Paper and paper products", "Other types", 15525342],
-  ["Fibers, textile yarns of all kinds", "Road", 372857039],
-  ["Fibers, textile yarns of all kinds", "Air", 4423837],
-  ["Fibers, textile yarns of all kinds", "Waterway", 2810659471],
-  ["Textiles and garments", "Road", 798610708],
-  ["Textiles and garments", "Air", 2656693514],
-  ["Textiles and garments", "Waterway", 26030817724],
-  ["Textiles and garments", "Other types", 257721506],
-  ["Curtain fabric, other technical fabrics", "Road", 16476291],
-  ["Curtain fabric, other technical fabrics", "Air", 13815322],
-  ["Curtain fabric, other technical fabrics", "Waterway", 535676641],
-  ["Shoes of all kinds", "Road", 49952093],
-  ["Shoes of all kinds", "Air", 474010081],
-  ["Shoes of all kinds", "Waterway", 17193887309],
-  ["Shoes of all kinds", "Other types", 74362493],
-  ["Textile, garment, leather and footwear materials", "Road", 230413908],
-  ["Textile, garment, leather and footwear materials", "Air", 255447836],
-  ["Textile, garment, leather and footwear materials", "Waterway", 1285598311],
-  ["Textile, garment, leather and footwear materials", "Other types", 28529677],
-  ["Ceramic products", "Road", 13974629],
-  ["Ceramic products", "Air", 19076661],
-  ["Ceramic products", "Waterway", 438079150],
-  ["Glass and glass products", "Road", 355715391],
-  ["Glass and glass products", "Air", 47382892],
-  ["Glass and glass products", "Waterway", 638856524],
-  ["Precious stones, precious metals and products", "Waterway", 29403800],
-  ["Precious stones, precious metals and products", "Air", 459022606],
-  ["Iron and steel of all kinds", "Road", 94373281],
-  ["Iron and steel of all kinds", "Waterway", 5079545961],
-  ["Iron and steel products", "Road", 129248747],
-  ["Iron and steel products", "Air", 194222610],
-  ["Iron and steel products", "Waterway", 3809762373],
-  ["Other base metals and products", "Road", 217431212],
-  ["Other base metals and products", "Air", 148823443],
-  ["Other base metals and products", "Waterway", 3119181674],
-  ["Computers, electronic products and components", "Road", 6971016688],
-  ["Computers, electronic products and components", "Air", 49361948753],
-  ["Computers, electronic products and components", "Waterway", 20674972992],
-  ["Computers, electronic products and components", "Other types", 477529785],
-  ["Phones of all kinds and accessories", "Road", 8530615826],
-  ["Phones of all kinds and accessories", "Air", 34148220841],
-  ["Phones of all kinds and accessories", "Waterway", 913362040],
-  ["Cameras, camcorders and accessories", "Road", 80505446],
-  ["Cameras, camcorders and accessories", "Waterway", 1342372872],
-  ["Cameras, camcorders and accessories", "Air", 4338583097],
-  ["Cameras, camcorders and accessories", "Other types", 101188390],
-  ["Machinery, equipment, tools and other spare parts", "Road", 4305173999],
-  ["Machinery, equipment, tools and other spare parts", "Air", 11989276593],
-  ["Machinery, equipment, tools and other spare parts", "Waterway", 26259745621],
-  ["Machinery, equipment, tools and other spare parts", "Other types", 442675262],
-  ["Electrical wires and cables", "Air", 754469762],
-  ["Electrical wires and cables", "Road", 663315114],
-  ["Electrical wires and cables", "Waterway", 1761228508],
-  ["Electrical wires and cables", "Other types", 60669843],
-  ["Vehicles and spare parts", "Road", 133121045],
-  ["Vehicles and spare parts", "Air", 878508436],
-  ["Vehicles and spare parts", "Waterway", 11599425997],
-  ["Vehicles and spare parts", "Other types", 164738934],
-  ["Furniture products made from materials other than wood", "Road", 7003427],
-  ["Furniture products made from materials other than wood", "Air", 4904945],
-  ["Furniture products made from materials other than wood", "Waterway", 2593634654],
-  ["Furniture products made from materials other than wood", "Other types", 49092496],
-  ["Toys, sporting goods and parts", "Road", 31606990],
-  ["Toys, sporting goods and parts", "Air", 403336221],
-  ["Toys, sporting goods and parts", "Waterway", 6069293122],
-  ["Toys, sporting goods and parts", "Other types", 45059974],
-  ["Other goods", "Road", 1306552414],
-  ["Other goods", "Air", 876894067],
-  ["Other goods", "Waterway", 13958978901],
-  ["Other goods", "Other types", 210270061]
+  ["Rubber Products", "Road", 10164589],
+  ["Rubber Products", "Air", 28114381],
+  ["Rubber Products", "Waterway", 1021378976],
+  ["Bags & Luggage", "Road", 6451303],
+  ["Bags & Luggage", "Air", 191552566],
+  ["Bags & Luggage", "Waterway", 3123825284],
+  ["Bags & Luggage", "Other", 22423808],
+  ["Wood Products", "Road", 62944294],
+  ["Wood Products", "Air", 21111471],
+  ["Wood Products", "Waterway", 12202115661],
+  ["Wood Products", "Other", 210401913],
+  ["Textiles & Garments", "Road", 798610708],
+  ["Textiles & Garments", "Air", 2656693514],
+  ["Textiles & Garments", "Waterway", 26030817724],
+  ["Textiles & Garments", "Other", 257721506],
+  ["Footwear", "Road", 49952093],
+  ["Footwear", "Air", "Air", 474010081],
+  ["Footwear", "Waterway", 17193887309],
+  ["Footwear", "Other", 74362493],
+  ["Computers & Electronics", "Road", 6971016688],
+  ["Computers & Electronics", "Air", 49361948753],
+  ["Computers & Electronics", "Waterway", 20674972992],
+  ["Computers & Electronics", "Other", 477529785],
+  ["Phones & Accessories", "Road", 8530615826],
+  ["Phones & Accessories", "Air", 34148220841],
+  ["Phones & Accessories", "Waterway", 913362040],
+  ["Machinery & Equipment", "Road", 4305173999],
+  ["Machinery & Equipment", "Air", 11989276593],
+  ["Machinery & Equipment", "Waterway", 26259745621],
+  ["Machinery & Equipment", "Other", 442675262],
+  ["Vehicles & Parts", "Road", 133121045],
+  ["Vehicles & Parts", "Air", 878508436],
+  ["Vehicles & Parts", "Waterway", 11599425997],
+  ["Vehicles & Parts", "Other", 164738934],
+  ["Other Goods", "Road", 1306552414],
+  ["Other Goods", "Air", 876894067],
+  ["Other Goods", "Waterway", 13958978901],
+  ["Other Goods", "Other", 210270061]
 ];
 
-// Wait for D3 and d3-sankey to load before processing data
+// Process data when page loads
 window.addEventListener('load', function() {
-  // Process the embedded data
   const links = [];
-  const productValues = {}; // Total value per product category
-  const modeValues = {};    // Total value per transport mode
+  const productTotal = {};
+  const modeTotal = {};
 
-  // Skip header row (index 0) and process data rows
+  // Skip header row
   for (let i = 1; i < rawData.length; i++) {
-    const row = rawData[i];
-    const product = row[0];
-    const mode = row[1];
-    const value = row[2];
-
-    links.push({source: product, target: mode, value: value});
-
-    productValues[product] = (productValues[product] || 0) + value;
-    modeValues[mode] = (modeValues[mode] || 0) + value;
+    const [product, mode, value] = rawData[i];
+    links.push({source: product, target: mode, value});
+    productTotal[product] = (productTotal[product] || 0) + value;
+    modeTotal[mode] = (modeTotal[mode] || 0) + value;
   }
 
-  // Create unique nodes with layer assignment
-  // Layer 0 = products (left), Layer 1 = transport modes (right)
-  const nodesSet = new Set();
-  links.forEach(l => { 
-    nodesSet.add(l.source); 
-    nodesSet.add(l.target); 
+  // Create nodes
+  const nodeMap = new Map();
+  links.forEach(l => {
+    if (!nodeMap.has(l.source)) nodeMap.set(l.source, {name: l.source, layer: 0});
+    if (!nodeMap.has(l.target)) nodeMap.set(l.target, {name: l.target, layer: 1});
   });
 
-  let nodes = Array.from(nodesSet).map(name => ({
-    name,
-    // Identify transport modes to place on right side
-    layer: name === "Road" || name === "Air" || name === "Waterway" || name === "Other types" ? 1 : 0
-  }));
+  let nodes = Array.from(nodeMap.values());
 
-  // Attach total values for sorting
+  // Add total values for sorting
   nodes.forEach(n => {
-    n.totalValue = n.layer === 0 ? (productValues[n.name] || 0) : (modeValues[n.name] || 0);
+    n.totalValue = n.layer === 0 ? productTotal[n.name] : modeTotal[n.name];
   });
 
-  // Sort: Layer 0 first, then by descending value within each layer
+  // Sort: products and modes both descending by value
   nodes.sort((a,b) => {
     if (a.layer !== b.layer) return a.layer - b.layer;
-    return b.totalValue - a.totalValue; // Highest value first
+    return b.totalValue - a.totalValue;
   });
 
-  // Assign index after sorting
+  // Assign indices
   nodes.forEach((n,i) => n.index = i);
 
-  // Convert link source/target from names to indices
+  // Convert links to use indices
   links.forEach(l => {
     l.source = nodes.findIndex(n => n.name === l.source);
     l.target = nodes.findIndex(n => n.name === l.target);
   });
 
-  // Draw the Sankey diagram
   drawSankey({nodes, links});
 });
 
 function drawSankey({nodes, links}) {
-  // Much larger canvas to avoid overlapping labels
   const width = 2400;
-  const height = 3000;
+  const height = 3200;
 
   const svg = d3.select("svg")
     .attr("viewBox", [0, 0, width, height]);
 
-  // Configure sankey layout with more spacing
   const sankey = d3.sankey()
     .nodeId(d => d.index)
-    .nodeWidth(30)          // Slightly wider nodes for visibility
-    .nodePadding(25)        // More padding between nodes to prevent overlap
-    .extent([[300, 120], [width-300, height-120]]) // More left/right margin for labels
-    .nodeSort(null);        // Keep our custom sort order
+    .nodeWidth(32)
+    .nodePadding(28)
+    .extent([[320, 140], [width - 320, height - 180]])
+    .nodeSort(null);
 
   const {nodes: laidNodes, links: laidLinks} = sankey({nodes, links});
 
-  // Create gradient definitions
   const defs = svg.append("defs");
 
-  // Tooltip element
   const tooltip = d3.select("#tooltip");
 
-  // Draw links (flows) with gradients
+  // Draw links with beautiful gradients
   const link = svg.append("g")
     .selectAll("path")
     .data(laidLinks)
     .join("path")
       .attr("d", d3.sankeyLinkHorizontal())
       .attr("stroke", d => {
-        // Create unique gradient for each link
-        const id = `gradient-${d.source.index}-${d.target.index}`;
+        const id = `grad-${d.source.index}-${d.target.index}`;
         const grad = defs.append("linearGradient")
           .attr("id", id)
           .attr("gradientUnits", "userSpaceOnUse")
           .attr("x1", d.source.x1)
           .attr("x2", d.target.x0);
-        
-        // Gradient from source color to target color
-        grad.append("stop")
-          .attr("offset","0%")
-          .attr("stop-color", d3.schemeTableau10[d.source.index % 10]);
-        grad.append("stop")
-          .attr("offset","100%")
-          .attr("stop-color", d3.schemeTableau10[d.target.index % 10]);
-        
+        grad.append("stop").attr("offset", "0%").attr("stop-color", d3.schemeTableau10[d.source.index % 10]);
+        grad.append("stop").attr("offset", "100%").attr("stop-color", d3.schemeTableau10[d.target.index % 10]);
         return `url(#${id})`;
       })
-      .attr("stroke-width", d => Math.max(1, d.width)) // Link width based on value
-      .attr("opacity", 0.5)
+      .attr("stroke-width", d => Math.max(2, d.width))
       .attr("fill", "none")
-      // Hover effects for links
-      .on("mouseover", function(event, d) {
-        d3.select(this).attr("opacity", 0.8);
-        tooltip
-          .style("opacity", 1)
-          .html(`<strong>${d.source.name}</strong> → <strong>${d.target.name}</strong><br/>
-                 Giá trị: <strong>${(d.value/1e9).toFixed(2)} tỷ USD</strong>`)
-          .style("left", (event.pageX + 15) + "px")
-          .style("top", (event.pageY - 28) + "px");
+      .attr("opacity", 0.6)
+      .on("mouseover", function(e, d) {
+        d3.select(this).attr("opacity", 0.9);
+        tooltip.html(`
+          <strong>${d.source.name}</strong> to <strong>${d.target.name}</strong><br>
+          <strong>${(d.value/1e9).toFixed(2)} billion USD</strong>
+        `)
+        .style("left", (e.pageX + 12) + "px")
+        .style("top", (e.pageY - 40) + "px")
+        .transition().duration(200).style("opacity(1);
       })
-      .on("mouseout", function() {
-        d3.select(this).attr("opacity", 0.5);
-        tooltip.style("opacity", 0);
-      });
+      .on("mouseout", () => tooltip.transition().duration(300).style("opacity", 0));
 
-  // Draw nodes (rectangles)
+  // Draw nodes
   const node = svg.append("g")
     .selectAll("g")
     .data(laidNodes)
@@ -339,52 +264,49 @@ function drawSankey({nodes, links}) {
   node.append("rect")
     .attr("x", d => d.x0)
     .attr("y", d => d.y0)
-    .attr("height", d => Math.max(8, d.y1 - d.y0)) // Minimum height for visibility
+    .attr("height", d => Math.max(12, d.y1 - d.y0))
     .attr("width", d => d.x1 - d.x0)
     .attr("fill", d => d3.schemeTableau10[d.index % 10])
     .attr("stroke", "#fff")
-    .attr("stroke-width", 1);
+    .attr("stroke-width", 1.5);
 
-  // Add labels for node names
-  // Left side labels (products) are right-aligned, right side (modes) are left-aligned
+  // Product / Mode name
   node.append("text")
-    .attr("x", d => d.layer === 0 ? d.x0 - 12 : d.x1 + 12)
+    .attr("x", d => d.layer === 0 ? d.x0 - 15 : d.x1 + 15)
     .attr("y", d => (d.y0 + d.y1) / 2)
     .attr("dy", "0.35em")
     .attr("text-anchor", d => d.layer === 0 ? "end" : "start")
     .style("font-weight", "600")
-    .style("font-size", "14px")
-    .style("fill", "#333")
-    // Truncate very long names
-    .text(d => d.name.length > 40 ? d.name.substring(0, 37) + "..." : d.name);
+    .style("font-size", "15px")
+    .style("fill", "#1a1a1a")
+    .text(d => d.name.length > 35 ? d.name.substring(0,32) + "..." : d.name);
 
-  // Add value labels below the name
+  // Value in billions
   node.append("text")
-    .attr("x", d => d.layer === 0 ? d.x0 - 12 : d.x1 + 12)
-    .attr("y", d => (d.y0 + d.y1) / 2 + 18)
+    .attr("x", d => d.layer === 0 ? d.x0 - 15 : d.x1 + 15)
+    .attr("y", d => (d.y0 + d.y1) / 2 + 20)
     .attr("text-anchor", d => d.layer === 0 ? "end" : "start")
-    .style("font-size", "12px")
-    .style("fill", "#666")
-    .text(d => (d.value / 1e9).toFixed(1) + " tỷ USD");
+    .style("font-size", "13px")
+    .style("fill", "#444")
+    .text(d => (d.value / 1e9).toFixed(1) + "B USD");
 
-  // Chart title
+  // Main title
   svg.append("text")
     .attr("x", width / 2)
-    .attr("y", 50)
+    .attr("y", 80)
     .attr("text-anchor", "middle")
-    .style("font-size", "32px")
+    .style("font-size", "36px")
     .style("font-weight", "bold")
     .style("fill", "#0d47a1")
-    .text("XUẤT KHẨU VIỆT NAM QUÝ 3/2025");
-    
-  // Subtitle
+    .text("VIETNAM EXPORTS Q3 2025");
+
   svg.append("text")
     .attr("x", width / 2)
-    .attr("y", 85)
+    .attr("y", 120)
     .attr("text-anchor", "middle")
-    .style("font-size", "16px")
-    .style("fill", "#555")
-    .text("Theo nhóm hàng và phương thức vận chuyển – Giá trị (tỷ USD)");
+    .style("font-size", "20px")
+    .style("fill", "#666")
+    .text("By Product Category and Transport Mode • Total: $329.8 Billion USD");
 }
 </script>
 </body>
