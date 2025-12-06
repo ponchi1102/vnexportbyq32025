@@ -321,7 +321,7 @@ function drawSankey({nodes, links}) {
         tooltip
           .style("opacity", 1)
           .html(`<strong>${d.source.name}</strong> → <strong>${d.target.name}</strong><br/>
-                 Giá trị: <strong>${(d.value/1e9).toFixed(2)} billions USD</strong>`)
+                 value: <strong>${(d.value/1e9).toFixed(2)} billions USD</strong>`)
           .style("left", (event.pageX + 15) + "px")
           .style("top", (event.pageY - 28) + "px");
       })
@@ -389,4 +389,5 @@ function drawSankey({nodes, links}) {
 </script>
 </body>
 </html>
+
 
